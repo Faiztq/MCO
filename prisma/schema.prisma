@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  idUser    Int      @id @default(autoincrement())
+  username  String   @default("")
+  gmail     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userprofil userprofil[]
+  alamat     alamat[]
+}
+
+model userprofil {
+  idProfil    Int      @id @default(autoincrement())
+  name        String
+  gender      Gender   @default(MALE)
+  birthdate   DateTime
+  phoneNumber String
+  user        user     @relation(fields: [idUser], references: [idUser])
+  idUser      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model alamat {
+  idAlamat    Int      @id @default(autoincrement())
+  address     String
+  postalcode  String
+  phoneNumber String
+  user        user     @relation(fields: [idUser], references: [idUser])
+  idUser      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model transaksi {
+  idTransaksi     Int         @id @default(autoincrement())
+  transactionDate DateTime
+  stock           Int?
+  paymentDate     DateTime
+  endDate         DateTime
+  startDate       DateTime
+  status          statusBayar
+  totalPayment    Float
+  customerID      Int
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  produk           produk[]
+  detail_transaksi detail_transaksi[]
+}
+
+model produk {
+  idProduk    Int      @id @default(autoincrement())
+  namaProduk  String   @db.VarChar(100)
+  information String   @db.VarChar(100)
+  tariff      Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  transaksi   transaksi @relation(fields: [idTransaksi], references: [idTransaksi])
+  idTransaksi Int
+}
+
+model detail_transaksi {
+  idDetail     Int      @id @default(autoincrement())
+  jumlahProduk Int?
+  idProduk     Int
+  id_transaksi Int
+  price        Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  transaksi   transaksi @relation(fields: [idTransaksi], references: [idTransaksi])
+  idTransaksi Int
+}
+
+model admin {
+  idAdmin  Int    @id @default(autoincrement())
+  username String
+  email    String @unique
+  password String
+}
+
+enum statusBayar {
+  LUNAS
+  BELUM_LUNAS
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
